@@ -1,5 +1,5 @@
 #include <iostream>
-#include "../include/divider.h"
+#include "divider.h"
 
 int main() {
     std::cout << "Enter the width and heigth of the bar in squares\n";
