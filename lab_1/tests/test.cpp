@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "../include/divider.hpp"
+#include "../include/divider.h"
 
 TEST(bar_div_test, base_case) {
     ASSERT_TRUE(get_min_divs(5, 5) == 8);       // 4 h-cuts, 4 v-cuts

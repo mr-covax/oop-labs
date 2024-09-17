@@ -1,9 +1,9 @@
 #include <iostream>
-#include "../include/divider.hpp"
+#include "../include/divider.h"
 
 int main() {
     std::cout << "Enter the width and heigth of the bar in squares\n";
-    
+
     int width, heigth;
 
     std::cout << "Width: ";
@@ -19,4 +19,3 @@ int main() {
 
     return 0;
 }
-
