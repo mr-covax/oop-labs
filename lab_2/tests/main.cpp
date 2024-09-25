@@ -3,7 +3,7 @@
 #include "six.h"
 
 TEST(initialization_test_suite, overflowing_numbers) {
-    EXPECT_THROW(Six{MAX_SIZE + 1}, std::out_of_range);
+    EXPECT_THROW(Six(7, 1), std::out_of_range);
 }
 
 TEST(equal_test_suite, equal_to_itself) {
@@ -31,6 +31,12 @@ TEST(equal_test_suite, no_equal) {
     
     ASSERT_FALSE(lhs.equals(rhs));
     ASSERT_FALSE(rhs.equals(lhs));
+}
+
+TEST(equal_test_suite, different_container_sizes) {
+    Six a{7, 2};
+    Six b{7, 4};
+    ASSERT_TRUE(a.equals(b));
 }
 
 TEST(comparison_test_suite, larger) {
@@ -65,8 +71,14 @@ TEST(addition_test_suite, normal_test) {
     ASSERT_TRUE(result.equals(answer));
 }
 
+TEST(addition_test_suite, different_ct_sizes) {
+    Six left{10, 5}, right{20, 5}, answer{30};
+    Six result = left.plus(right);
+    ASSERT_TRUE(result.equals(answer));
+}
+
 TEST(addition_test_suite, throw_on_overflow) {
-    Six left{MAX_SIZE}, right{MAX_SIZE};
+    Six left{5, 1}, right{5, 1};
     EXPECT_THROW(left.plus(right), std::overflow_error);
 }
 
@@ -81,10 +93,15 @@ TEST(subtraction_test_suite, throw_on_underflow) {
     EXPECT_THROW(left.minus(right), std::underflow_error);
 }
 
+TEST(subtraction_test_suite, different_ct_sizes) {
+    Six left{10, 2}, right{10, 4}, answer{};
+    Six result = left.minus(right);
+    EXPECT_TRUE(result.equals(answer));
+}
+
 TEST(copy_test_suite, regular_test) {
     Six value{10};
-    Six copy;
-    value.copy(copy);
+    Six copy{value};
     ASSERT_TRUE(copy.equals(value));
 }
 

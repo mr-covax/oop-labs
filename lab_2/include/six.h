@@ -1,24 +1,23 @@
 #pragma once
 
-// 24 base-six digits can hold up to and including 46_655
-const unsigned char ALLOC_DIGITS = 6;
-const unsigned int MAX_SIZE = 46655;
-
 class Six {
-    public:
-        Six() = default;
-        Six(unsigned int value);
+public:
+    Six();
+    Six(unsigned int decimal_value);
+    Six(unsigned int size, unsigned int decimal_value);
+    Six(const Six& src) noexcept;
 
-        Six plus(const Six& value);
-        Six minus(const Six& value);
-        void copy(Six& dest);
+    Six plus(const Six& value) const;
+    Six minus(const Six& value) const;
+    
+    bool equals(const Six& value) const;
+    bool less_than(const Six& value) const ;
+    bool greater_than(const Six& value) const;
 
-        bool greater_than(const Six& rhs);
-        bool less_than(const Six& rhs);
-        bool equals(const Six& rhs);
+    virtual ~Six() noexcept;
 
-    private:
-        unsigned char* digits{ new unsigned char[ALLOC_DIGITS]{} };
-        void print();
-        int compare(const Six& rhs);
+private:
+    unsigned int size;
+    unsigned char *array;
+    int compare(const Six& value) const;
 };

@@ -1,99 +1,110 @@
-#include "six.h"
-#include <iostream>
 #include <stdexcept>
+#include "six.h"
 
+Six::Six() : size(1), array{ new unsigned char{0} } {}
 
-void Six::print() {
-    std::cout << "[";
-    for (int i{0}; i < ALLOC_DIGITS; ++i) {
-        std::cout << ' ' << (int)digits[i];
-    }
-    std::cout << " ]" << std::endl;
-}
+Six::Six(unsigned int value) : Six(value, 8) {}
 
-Six::Six(unsigned int value) {
-    int i{0};
+Six::Six(unsigned int value, unsigned int max_len) {
+    size = max_len;
+    array = new unsigned char[size]{};
 
-    if (value > MAX_SIZE) {
-        throw std::out_of_range("Buffer too small to fit the value");
-    }
-
-    while (value) {
-        digits[i] = value % 6;
+    for (int i{0}; i < size && value; ++i) {
+        array[i] = value % 6;
         value /= 6;
-        ++i;
-    }
-}
-
-Six Six::plus(const Six& value) {
-    Six result{};
-    int digit_sum{0}, carry{0};
-
-    for (int i{0}; i < ALLOC_DIGITS; ++i) {
-        digit_sum = digits[i] + value.digits[i] + carry;
-        result.digits[i] = digit_sum % 6;
-        carry = digit_sum / 6;
-    }
-    if (carry) {
-        throw std::overflow_error("Value is now too big to fit");
     }
 
-    return result;
+    if (value)
+        throw std::out_of_range("Buffer too small to fit the value");
 }
 
-Six Six::minus(const Six& value) {
-    Six result{};
-    int borrow{0}, diff{0};
-
-    for (int i{0}; i < ALLOC_DIGITS; ++i) {
-        diff = digits[i] - value.digits[i] - borrow;
-        
-        if (diff < 0) {
-            diff += 6;
-            borrow = 1;
-        } else {
-            borrow = 0;
-        }
-        
-        result.digits[i] = diff;
-    }
-
-    if (borrow)
-        throw std::underflow_error("Resulting value cannot be negative");
-
-    return result;
-}
-
-void Six::copy(Six& dest) {
-    for (int i{0}; i < ALLOC_DIGITS; ++i) {
-        dest.digits[i] = digits[i];
-    }
-}
-
-bool Six::greater_than(const Six& rhs) {
-    return compare(rhs) == 1;
-}
-
-bool Six::less_than(const Six& rhs) {
-    return compare(rhs) == 0;
-}
-
-bool Six::equals(const Six& rhs) {
-    return compare(rhs) == -1;
-}
-
-int Six::compare(const Six& rhs) {
-    // This function combines all order checking operations into
-    // one for cleaner implementations of the public interface.
-    // 
-    // Returns 1 if this value is larger than rhs
-    //         0 if rhs is larger
-    //        -1 if equal
+Six::Six(const Six& src) noexcept {
+    size = src.size;
+    array = new unsigned char[size]{};
     
-    for (int i{ALLOC_DIGITS}; i >= 0; --i) {
-        if (digits[i] != rhs.digits[i]) {
-            return digits[i] > rhs.digits[i];
-        }
+    for (int i{0}; i <= size; ++i) {
+        array[i] = src.array[i];
+    }
+}
+
+Six Six::plus(const Six& value) const {
+    unsigned int max_size = std::max<int>(size, value.size);
+    Six result{0, max_size};
+
+    // Я бы лично развернул конструкцию ниже на три цикла:
+    //   - первый от 0 до минимального из размеров контейнера (i);
+    //   - второй от i до размера исходного контейнера;
+    //   - третий от i до размера второго.
+    // 
+    // Таким образом, не пришлось бы делать постоянные проверки
+    // на выход за границы внутри цикла, улучшая тем самым эффективность
+    // ценой тройного дублирования кода внутри функции.
+
+    int sum{0}, i{0};
+    for (i; i < max_size; ++i) {
+        sum += (i < size) ? array[i] : 0;
+        sum += (i < value.size) ? value.array[i] : 0;
+        result.array[i] = sum % 6;
+        sum /= 6;
+    }
+
+    if (sum) { throw std::overflow_error("Buffer too small to fit the result"); }
+    return result;
+}
+
+Six Six::minus(const Six& value) const {
+    unsigned int max_size = std::max<int>(size, value.size);
+    Six result{0, max_size};
+
+    // Объяснение, почему я считаю, что конструкция ниже
+    // неэффективна, смотри в Six::plus();
+
+    int diff{0}, i{0};
+    for (i; i < max_size; ++i) {
+        diff += (i < size) ? array[i] : 0;
+        diff -= (i < value.size) ? value.array[i] : 0;
+        result.array[i] = (6 + diff) % 6;
+        diff = -1 * (diff < 0);
+    }
+
+    if (diff) { throw std::underflow_error("Value must be non-negative"); }
+    return result;
+}
+
+bool Six::equals(const Six& value) const {
+    return compare(value) == -1;
+}
+
+bool Six::less_than(const Six& value) const {
+    return compare(value) == 0;
+}
+
+bool Six::greater_than(const Six& value) const {
+    return compare(value) == 1;
+}
+
+int Six::compare(const Six& value) const {
+    // Эта функция объединяет несколько видов сравнения
+    // и чем-то похоже на cmp(). 
+    // Возращает:
+    //     1, если this > value;
+    //     0, ecли this < value;
+    //    -1, если this == value;
+
+    int a, b;
+    int max_size = std::max<int>(size, value.size);
+
+    for (int i{max_size}; i >= 0; --i) {
+        a = (i < size) ? array[i] : 0;
+        b = (i < value.size) ? value.array[i] : 0;
+        if (a != b)
+            return a > b;
     }
     return -1;
+}
+
+Six::~Six() noexcept {
+    size = 0;
+    delete []array;
+    array = nullptr;
 }
