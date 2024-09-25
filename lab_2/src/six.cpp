@@ -12,7 +12,7 @@ void Six::print() {
 }
 
 Six::Six(unsigned int value) {
-    int i{};
+    int i{0};
 
     if (value > MAX_SIZE) {
         throw std::out_of_range("Buffer too small to fit the value");
@@ -27,9 +27,9 @@ Six::Six(unsigned int value) {
 
 Six Six::plus(const Six& value) {
     Six result{};
-    int digit_sum{}, carry{};
+    int digit_sum{0}, carry{0};
 
-    for (int i{}; i < ALLOC_DIGITS; ++i) {
+    for (int i{0}; i < ALLOC_DIGITS; ++i) {
         digit_sum = digits[i] + value.digits[i] + carry;
         result.digits[i] = digit_sum % 6;
         carry = digit_sum / 6;
@@ -43,9 +43,9 @@ Six Six::plus(const Six& value) {
 
 Six Six::minus(const Six& value) {
     Six result{};
-    int borrow{}, diff{};
+    int borrow{0}, diff{0};
 
-    for (int i{}; i < ALLOC_DIGITS; ++i) {
+    for (int i{0}; i < ALLOC_DIGITS; ++i) {
         diff = digits[i] - value.digits[i] - borrow;
         
         if (diff < 0) {
@@ -65,7 +65,7 @@ Six Six::minus(const Six& value) {
 }
 
 void Six::copy(Six& dest) {
-    for (int i{}; i < ALLOC_DIGITS; ++i) {
+    for (int i{0}; i < ALLOC_DIGITS; ++i) {
         dest.digits[i] = digits[i];
     }
 }
