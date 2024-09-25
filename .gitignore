@@ -33,3 +33,8 @@
 
 # Exclude the build folders
 */build
+
+# For this type of project syncing editor configurations is silly.
+# So also ignore folder from VS Code and Zed
+.vscode/
+.zed/
