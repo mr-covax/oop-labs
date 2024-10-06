@@ -1,6 +1,15 @@
-FROM gcc:14.2.0
+FROM ubuntu:noble
 
-RUN apt update && apt install -y cmake
+ENV DEBIAN_FRONTEND noninteractive
+
+RUN apt update && apt install -y \
+	gcc \
+	g++ \
+	binutils \
+	cmake \
+	git \
+	fish \
+	curl
+
 RUN rm -rf /var/lib/apt/lists/*
-
-WORKDIR /workspace
+RUN chsh -s /usr/bin/fish
